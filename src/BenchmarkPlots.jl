@@ -27,19 +27,19 @@ For each element in `NumData`:
 
 # Keywords
 - `title`: figure title. Default is `"Benchmark"`
-- `logscale`: If `true`, plot axes in log scale. Default is `true`.
-- `xlabel`: label of x-axis. Default is `logscale ? "log(N)" : "N"`
-- `ylabel`: label of y-axis. Default is `logscale ? "log(Timing [ns])" : "Timing [ns]"`
+- `logscale`: If `true`, plot axes in log10 scale. Default is `true`.
+- `xlabel`: label of x-axis. Default is `logscale ? "log10(N)" : "N"`
+- `ylabel`: label of y-axis. Default is `logscale ? "log10(Timing [ns])" : "Timing [ns]"`
 - `resolution`: figure resolution. Default is `(1600, 900)`
 - `names`: alternative names of testing functions. Default is `string.(functions)`, which is exactly the same with function names
 - `colors`: colors of each benchmark line. Default is `nothing`, meaning random colors are assigned to lines.
-- `savelog::Bool`: If `true`, save processed data in `csv`. The name of log file depends on analysis function
-- `savefolder`: set the directory to save log file
+- `savelog::Bool`: If `true`, save processed data in `csv`. The name of logging file depends on analysis function
+- `savefolder`: set the directory to save logging file
 - `stairplot`: If `true`, plot line in stair style (which is more concrete). Default is `true`
 
 # Examples
 ```jl
-using BenchmarkTools, Makie
+using BenchmarkPlots, Makie
 scene, layout, timings = benchmarkplot(
     [sum, minimum],
     rand,
@@ -56,8 +56,8 @@ function benchmarkplot(functions::Array, gen::Function, NumData;
         resolution = (1600, 900),
         colors = nothing,
         logscale = true,
-        xlabel = logscale ? "log(N)" : "N",
-        ylabel = logscale ? "log(Timing [ns])" : "Timing [ns]",
+        xlabel = logscale ? "log10(N)" : "N",
+        ylabel = logscale ? "log10(Timing [ns])" : "Timing [ns]",
         savelog = true,
         savefolder = pwd(),
         stairplot = true, #TODO
@@ -96,7 +96,7 @@ function benchmarkplot(functions::Array, gen::Function, NumData;
     end
 
     if logscale
-        p = [Makie.lines!(ax, log.(timings.N), log.(timings[!,i+1]); color = colors[i]) for i in eachindex(functions)]
+        p = [Makie.lines!(ax, log10.(timings.N), log10.(timings[!,i+1]); color = colors[i]) for i in eachindex(functions)]
     else
         p = [Makie.lines!(ax, timings.N, timings[!,i+1]; color = colors[i]) for i in eachindex(functions)]
     end
