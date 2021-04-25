@@ -2,6 +2,8 @@
 
 Benchmark functions with different amount of data and plot in one figure.
 
+[![codecov](https://codecov.io/gh/JuliaAstroSim/BenchmarkPlots.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaAstroSim/BenchmarkPlots.jl)
+
 ## Install
 
 In `Julia` `REPL`
@@ -15,13 +17,13 @@ In `Julia` `REPL`
 
 ```julia
 using BenchmarkTools, Makie
-scene, layout, timings = benchmarkplot(
+scene, layout, df = benchmarkplot(
     [sum, minimum],
     rand,
     [10^i for i in 1:4],
 )
 display(scene)
-display(timings)
+display(df)
 Makie.save("benchmark_sum_miminum.png", scene)
 ```
 
@@ -75,12 +77,12 @@ search: benchmarkplot BenchmarkPlots
   ≡≡≡≡≡≡≡≡≡≡
 
   using BenchmarkPlots, Makie
-  scene, layout, timings = benchmarkplot(
+  scene, layout, df = benchmarkplot(
       [sum, minimum],
       rand,
       [10^i for i in 1:4],
   )
   display(scene)
-  display(timings)
+  display(df)
   Makie.save("benchmark_sum_miminum.png", scene)
 ```

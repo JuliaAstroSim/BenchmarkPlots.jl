@@ -1,12 +1,13 @@
 using Test
 
 using BenchmarkPlots
+using Statistics
 
 @testset "Basic" begin
-    scene, layout, timings = benchmarkplot(
-        [sum, minimum],
+    scene, layout, df = benchmarkplot(
+        [median, std],
         rand,
-        [10^i for i in 1:3],
+        [10^i for i in 1:2],
     )
-    @test sum(timings.N) == 11110
+    @test length(df.N) == 2
 end

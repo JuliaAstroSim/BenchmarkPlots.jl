@@ -4,14 +4,39 @@ using BenchmarkTools
 using ProgressMeter
 using Makie
 using Colors
+using ColorSchemes
 using DataFrames
 using CSV
 
 export
+    benchmarkplot!,
     benchmarkplot
 
 
 # Source codes
+
+function benchmarkplot!(ax, df::DataFrame;
+        colors = nothing,
+        logscale = true,
+        kw...
+    )
+    NumFuncs = size(df)[2] - 1
+    if isnothing(colors)
+        colors = [RGB(rand(3)...) for i in 1:NumFuncs]
+    else
+        if length(colors) < NumFuncs
+            colors = [colors...; [RGB(rand(3)...) for i in 1:NumFuncs-length(colors)]]
+        end
+    end
+
+    if logscale
+        plots = [Makie.lines!(ax, log10.(df.N), log10.(df[!,i+1]); color = colors[i], kw...) for i in 1:NumFuncs]
+    else
+        plots = [Makie.lines!(ax, df.N, df[!,i+1]; color = colors[i], kw...) for i in 1:NumFuncs]
+    end
+
+    return plots
+end
 
 """
     benchmarkplot(functions::Array, gen::Function, NumData::Array{Int}; kw...)
@@ -40,75 +65,68 @@ For each element in `NumData`:
 # Examples
 ```jl
 using BenchmarkPlots, Makie
-scene, layout, timings = benchmarkplot(
+scene, layout, df = benchmarkplot(
     [sum, minimum],
     rand,
     [10^i for i in 1:4],
 )
 display(scene)
-display(timings)
+display(df)
 Makie.save("benchmark_sum_miminum.png", scene)
 ```
 """
 function benchmarkplot(functions::Array, gen::Function, NumData;
         title = "Benchmark",
-        names = string.(functions),
+        labels = string.(functions),
         resolution = (1600, 900),
-        colors = nothing,
+        colors = ColorSchemes.tab10.colors,
         logscale = true,
         xlabel = logscale ? "log10(N)" : "N",
         ylabel = logscale ? "log10(Timing [ns])" : "Timing [ns]",
         savelog = true,
         savefolder = pwd(),
         stairplot = true, #TODO
-    kw...)
+        kw...
+    )
+    # Initialize plotting
     scene, layout = layoutscene(;resolution)
     ax = layout[1,1] = Axis(
         scene; title, xlabel, ylabel
     )
-
-    if isnothing(colors)
-        colors = [RGB(rand(3)...) for i in functions]
-    else
-        if length(colors) < length(functions)
-            colors = [colors...; [RGB(rand(3)...) for i in 1:length(functions)-length(colors)]]
-        end
-    end
-
-    timings = DataFrame(N = NumData)
+    
+    # Process data
+    df = DataFrame(N = NumData)
     for f in functions
-        timings[:, string(f)] = zeros(length(NumData))
+        df[:, string(f)] = zeros(length(NumData))
     end
 
     progress = Progress(length(NumData) * length(functions))
     for k in eachindex(NumData)
         let data = gen(NumData[k])
             for i in eachindex(functions)
+                f = functions[i]
                 if data isa Tuple
-                    result = @benchmark $(functions[i])($(data...))
+                    result = @benchmark ($f)($(data...))
                 else
-                    result = @benchmark $(functions[i])($(data))
+                    result = @benchmark ($f)($(data))
                 end
-                @inbounds timings[k,i+1] = mean(result.times)
+                @inbounds df[k,i+1] = mean(result.times)
                 next!(progress; showvalues = [("NumData", NumData[k]), ("Function", string(functions[i]))])
             end
         end
     end
 
-    if logscale
-        p = [Makie.lines!(ax, log10.(timings.N), log10.(timings[!,i+1]); color = colors[i]) for i in eachindex(functions)]
-    else
-        p = [Makie.lines!(ax, timings.N, timings[!,i+1]; color = colors[i]) for i in eachindex(functions)]
-    end
-    legend = layout[1,2] = Legend(scene, p, names)
-
     if savelog
         outputfile = joinpath(savefolder, "benchmark.csv")
-        CSV.write(outputfile, timings)
+        CSV.write(outputfile, df)
         println("Benchmark timings saved to ", outputfile)
     end
 
-    return scene, layout, timings
+    # Plot data
+    plots = benchmarkplot!(ax, df; colors, logscale, kw...)
+    legend = layout[1,2] = Legend(scene, plots, labels)
+
+    return scene, layout, df
 end
 
 end # module
