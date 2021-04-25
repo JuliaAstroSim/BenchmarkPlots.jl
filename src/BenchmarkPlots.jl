@@ -105,13 +105,13 @@ function benchmarkplot(functions::Array, gen::Function, NumData;
         let data = gen(NumData[k])
             for i in eachindex(functions)
                 f = functions[i]
+                next!(progress; showvalues = [("NumData", NumData[k]), ("Function", string(f))])
                 if data isa Tuple
                     result = @benchmark ($f)($(data...))
                 else
                     result = @benchmark ($f)($(data))
                 end
                 @inbounds df[k,i+1] = mean(result.times)
-                next!(progress; showvalues = [("NumData", NumData[k]), ("Function", string(functions[i]))])
             end
         end
     end
