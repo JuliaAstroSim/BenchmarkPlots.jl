@@ -2,7 +2,7 @@ module BenchmarkPlots
 
 using BenchmarkTools
 using ProgressMeter
-using Makie
+using GLMakie
 using Colors
 using ColorSchemes
 using DataFrames
@@ -90,7 +90,7 @@ function benchmarkplot(functions::Array, gen::Function, NumData;
     )
     # Initialize plotting
     scene, layout = layoutscene(;resolution)
-    ax = layout[1,1] = Axis(
+    ax = layout[1,1] = GLMakie.Axis(
         scene; title, xlabel, ylabel
     )
     
