@@ -77,7 +77,6 @@ Makie.save("benchmark_sum_miminum.png", scene)
 """
 function benchmarkplot(functions::Array, names::Array, gen::Function, NumData::Array;
         title = "Benchmark",
-        labels = string.(functions),
         resolution = (1600, 900),
         colors = ColorSchemes.tab10.colors,
         logscale = true,
@@ -124,7 +123,7 @@ function benchmarkplot(functions::Array, names::Array, gen::Function, NumData::A
 
     # Plot data
     plots = benchmarkplot!(ax, df; colors, logscale, kw...)
-    legend = layout[1,2] = Legend(scene, plots, labels)
+    legend = layout[1,2] = Legend(scene, plots, names)
 
     return scene, layout, df
 end
