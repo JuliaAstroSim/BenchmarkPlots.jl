@@ -4,7 +4,7 @@ using BenchmarkPlots
 using Statistics
 
 @testset "Basic" begin
-    scene, layout, df = benchmarkplot(
+    fig, df = benchmarkplot(
         [median, std],
         string.([median, std]),
         rand,
