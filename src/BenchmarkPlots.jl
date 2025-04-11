@@ -81,7 +81,7 @@ For each element in `NumData`:
 - `logscale`: If `true`, plot axes in log10 scale. Default is `true`.
 - `xlabel`: label of x-axis. Default is `logscale ? "log10(N)" : "N"`
 - `ylabel`: label of y-axis. Default is `logscale ? "log10(Timing [ns])" : "Timing [ns]"`
-- `resolution`: figure resolution. Default is `(1600, 900)`
+- `size`: figure size. Default is `(1600, 900)`
 - `Names`: alternative names of testing functions. Default is `string.(Functions)`, which is exactly the same with function names
 - `colors`: colors of each benchmark line. Default is `nothing`, meaning random colors are assigned to lines.
 - `savelog::Bool`: If `true`, save processed data in `csv`. The name of logging file depends on analysis function
@@ -105,7 +105,7 @@ Makie.save("benchmark_sum_miminum.png", fig)
 """
 function benchmarkplot(Functions::Array, Names::Array, gen::Union{Function,Array}, NumData::Array;
         title = "Benchmark",
-        resolution = (1600, 900),
+        size = (1600, 900),
         colors = ColorSchemes.tab10.colors,
         logscale::Bool = true,
         xlabel::String = logscale ? "log10(N)" : "N",
@@ -118,7 +118,7 @@ function benchmarkplot(Functions::Array, Names::Array, gen::Union{Function,Array
         kw...
     )
     # Initialize plotting
-    fig = Figure(;resolution)
+    fig = Figure(;size)
     ax = GLMakie.Axis(
         fig[1,1]; title, xlabel, ylabel
     )
